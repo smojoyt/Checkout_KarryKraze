@@ -82,20 +82,19 @@
     </div>
 
     <!-- Dynamic Snipcart Button Generator -->
-    <script>const products = {
-      "Headwear_EarflapBeanie": {
-        price: "49.97",
-        url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
-        description: "Ribbed Knit Acrylic Blend\nOversized earflap design\nSignature “LOVER BOY” front patch\nOne size fits most\nLightweight & breathable\nColor: Jet Black | Apricrot\nHand wash cold, dry flat",
-        image: "https://www.karrykraze.com/imgs/Products/Hats/BunnyEarsRat/01_03.png",
-        name: "Ribbed Knit Earflap Beanie",
-        custom1Name: "Color",
-        custom1Options: "Black | Apricrot"
-      }
-    };
+    <script>
+let productCatalog = {};
 
-    function addToCart(sku) {
-  const p = products[sku];
+// Load shared product data from your main site
+fetch("https://www.karrykraze.com/products/products.json")
+  .then(res => res.json())
+  .then(data => {
+    productCatalog = data;
+    runCheckoutLogic();
+  });
+
+function addToCart(sku) {
+  const p = productCatalog[sku];
   if (!p) return;
 
   const btn = document.createElement("button");
@@ -114,28 +113,30 @@
 
   document.body.appendChild(btn);
   btn.click();
-
-  setTimeout(() => {
-    Snipcart.api.theme.cart.open();
-  }, 1000);
 }
 
-
-    document.addEventListener("snipcart.ready", () => {
-      const params = new URLSearchParams(window.location.search);
-      const sku = params.get("autocart");
-      if (sku) {
-        addToCart(sku);
-      }
+function runCheckoutLogic() {
+  const params = new URLSearchParams(window.location.search);
+  const skus = params.get("autocart");
+  if (skus) {
+    const skuArray = skus.split(",");
+    skuArray.forEach((sku, i) => {
+      setTimeout(() => {
+        addToCart(sku.trim());
+      }, i * 500);
     });
 
-    function retryAdd() {
-      const params = new URLSearchParams(window.location.search);
-      const sku = params.get("autocart");
-      if (sku) {
-        addToCart(sku);
-      }
-    }</script>
+    setTimeout(() => {
+      Snipcart.api.theme.cart.open();
+    }, skuArray.length * 500 + 500);
+  }
+}
+
+function retryAdd() {
+  runCheckoutLogic(); // same logic, reused
+}
+    </script>
+
 
 
 

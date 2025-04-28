@@ -82,7 +82,8 @@
     </div>
 
     <!-- Dynamic Snipcart Button Generator -->
-    <script>const products = {
+    <script>
+    const products = {
       "Headwear_EarflapBeanie": {
         price: "49.97",
         url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
@@ -117,6 +118,7 @@
 
         document.addEventListener("snipcart.ready", () => {
           btn.click();
+          window.Snipcart.api.theme.cart.open();
         });
       }
     });
@@ -127,8 +129,10 @@
       const button = document.querySelector(`[data-item-id="${sku}"]`);
       if (button) {
         button.click();
+        window.Snipcart.api.theme.cart.open();
       }
     }</script>
+
 
 
 

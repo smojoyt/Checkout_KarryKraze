@@ -179,6 +179,33 @@ function addItemToCart(sku) {
   });
 }
 
+function addItemToCart(sku) {
+  const p = productCatalog[sku];
+  if (!p) {
+    console.error(`❌ Product not found for SKU: ${sku}`);
+    return;
+  }
+
+  console.log('🛒 Adding product to Snipcart:', {
+    id: sku,
+    name: p.name,
+    url: p.url,
+    image: p.image,
+    description: p.description,
+    price: p.price
+  });
+
+  Snipcart.api.cart.items.add({
+    id: sku,
+    name: p.name,
+    url: p.url,
+    image: p.image,
+    description: p.description,
+    price: p.price,
+    quantity: 1
+  });
+}
+
     </script>
 
     <script>
@@ -191,6 +218,7 @@ setTimeout(() => {
   }
 }, 2000); // 2000 milliseconds = 2 seconds
     </script>
+
 
 
 

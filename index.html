@@ -89,8 +89,13 @@ fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
   .then(data => {
     productCatalog = data;
-    runCheckoutLogic();
+
+    document.addEventListener("snipcart.ready", () => {
+      runCheckoutLogic(); // ✅ Only runs once Snipcart is fully ready
+    });
   });
+}
+
 
 function addToCart(sku) {
   const p = productCatalog[sku];
@@ -133,6 +138,11 @@ function runCheckoutLogic() {
     }, skuArray.length * 500 + 500);
   }
 }
+
+function retryAdd() {
+  runCheckoutLogic(); // re-runs the add-to-cart logic
+}
+
     </script>
 
 

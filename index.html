@@ -83,50 +83,55 @@
 
     <!-- Dynamic Snipcart Button Generator -->
     <script>
-    const products = {
-      "Headwear_EarflapBeanie": {
-        price: "49.97",
-        url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
-        description: "Ribbed Knit Acrylic Blend\nOversized earflap design\nSignature “LOVER BOY” front patch\nOne size fits most\nLightweight & breathable\nColor: Jet Black | Apricrot\nHand wash cold, dry flat",
-        image: "/imgs/Products/Hats/BunnyEarsRat/01_03.png",
-        name: "Ribbed Knit Earflap Beanie",
-        custom1Name: "Color",
-        custom1Options: "Black | Apricrot"
-      }
-      // Add more products here if needed
-    };
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const params = new URLSearchParams(window.location.search);
-      const sku = params.get("autocart");
-
-      if (sku && products[sku]) {
-        const p = products[sku];
-        const btn = document.createElement("button");
-        btn.className = "snipcart-add-item";
-        btn.style.display = "none";
-        btn.setAttribute("data-item-id", sku);
-        btn.setAttribute("data-item-price", p.price);
-        btn.setAttribute("data-item-url", p.url);
-        btn.setAttribute("data-item-description", p.description);
-        btn.setAttribute("data-item-image", p.image);
-        btn.setAttribute("data-item-name", p.name);
-        if (p.custom1Name) {
-          btn.setAttribute("data-item-custom1-name", p.custom1Name);
-          btn.setAttribute("data-item-custom1-options", p.custom1Options);
-        }
-        document.body.appendChild(btn);
-        btn.click();
-      }
-    });
-
-    function retryAdd() {
-      const params = new URLSearchParams(window.location.search);
-      const sku = params.get('autocart');
-      const button = document.querySelector(`[data-item-id="${sku}"]`);
-      if (button) button.click();
+  const products = {
+    "Headwear_EarflapBeanie": {
+      price: "49.97",
+      url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
+      description: "Ribbed Knit Acrylic Blend\nOversized earflap design\nSignature “LOVER BOY” front patch\nOne size fits most\nLightweight & breathable\nColor: Jet Black | Apricrot\nHand wash cold, dry flat",
+      image: "/imgs/Products/Hats/BunnyEarsRat/01_03.png",
+      name: "Ribbed Knit Earflap Beanie",
+      custom1Name: "Color",
+      custom1Options: "Black | Apricrot"
     }
+    // Add more products here
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const sku = params.get("autocart");
+
+    if (sku && products[sku]) {
+      const p = products[sku];
+      const btn = document.createElement("button");
+      btn.className = "snipcart-add-item";
+      btn.style.display = "none";
+      btn.setAttribute("data-item-id", sku);
+      btn.setAttribute("data-item-price", p.price);
+      btn.setAttribute("data-item-url", p.url);
+      btn.setAttribute("data-item-description", p.description);
+      btn.setAttribute("data-item-image", p.image);
+      btn.setAttribute("data-item-name", p.name);
+      if (p.custom1Name) {
+        btn.setAttribute("data-item-custom1-name", p.custom1Name);
+        btn.setAttribute("data-item-custom1-options", p.custom1Options);
+      }
+      document.body.appendChild(btn);
+
+      // Wait for Snipcart to be ready before clicking
+      document.addEventListener('snipcart.ready', () => {
+        btn.click();
+      });
+    }
+  });
+
+  function retryAdd() {
+    const params = new URLSearchParams(window.location.search);
+    const sku = params.get('autocart');
+    const button = document.querySelector(`[data-item-id="${sku}"]`);
+    if (button) button.click();
+  }
     </script>
+
 
     <!-- Snipcart Cart will auto-pop -->
     <footer>

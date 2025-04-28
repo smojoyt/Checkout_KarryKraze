@@ -89,23 +89,13 @@ function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) overlay.style.display = 'none';
 }
+</script>
 
-// Modify cart open timeout:
-setTimeout(() => {
-  Snipcart.api.theme.cart.open();
-  hideLoadingOverlay();
-  sessionStorage.setItem("itemsAdded", "true");
-}, skuArray.length * 200 + 500);
-    </script>
-
-
-
-    <!-- Dynamic Snipcart Button Generator -->
-    <script>
+<script>
 // Global product catalog
 let productCatalog = {};
 
-// 1. Fetch product catalog
+// Fetch product catalog
 fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
   .then(data => {
@@ -113,7 +103,7 @@ fetch("https://www.karrykraze.com/products/products.json")
     waitForSnipcartAndRun();
   });
 
-// 2. Wait until Snipcart is fully loaded
+// Wait until Snipcart is fully loaded
 function waitForSnipcartAndRun() {
   if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
     runCheckoutLogic();
@@ -122,7 +112,7 @@ function waitForSnipcartAndRun() {
   }
 }
 
-// 3. Main checkout logic
+// Main checkout logic
 function runCheckoutLogic() {
   if (sessionStorage.getItem("itemsAdded") === "true") return;
 
@@ -131,14 +121,12 @@ function runCheckoutLogic() {
   if (skus) {
     const skuArray = skus.split(",");
 
-    // Add each SKU
     skuArray.forEach((sku, i) => {
       setTimeout(() => {
         addItemToCart(sku.trim());
       }, i * 200);
     });
 
-    // IMPORTANT: open cart after adding (inside the same block!)
     setTimeout(() => {
       Snipcart.api.theme.cart.open();
       sessionStorage.setItem("itemsAdded", "true");
@@ -146,7 +134,7 @@ function runCheckoutLogic() {
   }
 }
 
-// 4. Actually add item
+// Actually add item
 function addItemToCart(sku) {
   const p = productCatalog[sku];
   if (!p) {
@@ -165,11 +153,12 @@ function addItemToCart(sku) {
   });
 }
 
-// 5. Retry button function
+// Retry button function
 function retryAdd() {
   waitForSnipcartAndRun();
 }
     </script>
+
 
 
 

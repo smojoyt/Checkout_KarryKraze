@@ -181,6 +181,16 @@ function addItemToCart(sku) {
 
     </script>
 
+    <script>
+setTimeout(() => {
+  if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
+    Snipcart.api.theme.cart.open();
+    console.log("✅ Cart opened automatically after 2 seconds.");
+  } else {
+    console.error("❌ Snipcart not ready after 2 seconds.");
+  }
+}, 2000); // 2000 milliseconds = 2 seconds
+    </script>
 
 
 

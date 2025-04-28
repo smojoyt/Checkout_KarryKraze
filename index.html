@@ -11,7 +11,8 @@
     <script async src="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.js"></script>
 
     <!-- Snipcart API Key (replace YOUR_API_KEY_HERE with your actual key) -->
-    <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz"></div>
+    <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz
+"></div>
 
     <style>
         body, html {
@@ -54,6 +55,7 @@
         }
 
         footer {
+            text-align:center;
             margin-top: 50px;
             font-size: 14px;
             color: white;
@@ -79,36 +81,51 @@
         </div>
     </div>
 
-    <!-- Hidden Snipcart Product (Replace values with your actual product data) -->
-    <button class="snipcart-add-item"
-            data-item-id="sku123"
-            data-item-price="49.99"
-            data-item-url="/checkout"
-            data-item-description="The Bucket Sack Bag"
-            data-item-image="https://karrykraze.com/images/bucket-bag.jpg"
-            data-item-name="Bucket Sack Bag">
-        Add to Cart
-    </button>
-
-    <!-- Auto-add to cart if URL contains ?autocart=sku123 -->
+    <!-- Dynamic Snipcart Button Generator -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const params = new URLSearchParams(window.location.search);
-            const sku = params.get('autocart');
-            if (sku) {
-                const button = document.querySelector(`[data-item-id="${sku}"]`);
-                if (button) {
-                    button.click();
-                }
-            }
-        });
+    const products = {
+      "Headwear_EarflapBeanie": {
+        price: "49.97",
+        url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
+        description: "Ribbed Knit Acrylic Blend\nOversized earflap design\nSignature “LOVER BOY” front patch\nOne size fits most\nLightweight & breathable\nColor: Jet Black | Apricrot\nHand wash cold, dry flat",
+        image: "/imgs/Products/Hats/BunnyEarsRat/01_03.png",
+        name: "Ribbed Knit Earflap Beanie",
+        custom1Name: "Color",
+        custom1Options: "Black | Apricrot"
+      }
+      // Add more products here if needed
+    };
 
-        function retryAdd() {
-            const params = new URLSearchParams(window.location.search);
-            const sku = params.get('autocart');
-            const button = document.querySelector(`[data-item-id="${sku}"]`);
-            if (button) button.click();
+    document.addEventListener("DOMContentLoaded", function () {
+      const params = new URLSearchParams(window.location.search);
+      const sku = params.get("autocart");
+
+      if (sku && products[sku]) {
+        const p = products[sku];
+        const btn = document.createElement("button");
+        btn.className = "snipcart-add-item";
+        btn.style.display = "none";
+        btn.setAttribute("data-item-id", sku);
+        btn.setAttribute("data-item-price", p.price);
+        btn.setAttribute("data-item-url", p.url);
+        btn.setAttribute("data-item-description", p.description);
+        btn.setAttribute("data-item-image", p.image);
+        btn.setAttribute("data-item-name", p.name);
+        if (p.custom1Name) {
+          btn.setAttribute("data-item-custom1-name", p.custom1Name);
+          btn.setAttribute("data-item-custom1-options", p.custom1Options);
         }
+        document.body.appendChild(btn);
+        btn.click();
+      }
+    });
+
+    function retryAdd() {
+      const params = new URLSearchParams(window.location.search);
+      const sku = params.get('autocart');
+      const button = document.querySelector(`[data-item-id="${sku}"]`);
+      if (button) button.click();
+    }
     </script>
 
     <!-- Snipcart Cart will auto-pop -->

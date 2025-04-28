@@ -128,9 +128,11 @@ function runCheckoutLogic() {
     });
 
     setTimeout(() => {
-      Snipcart.api.theme.cart.open();
-      sessionStorage.setItem("itemsAdded", "true");
-    }, skuArray.length * 200 + 500);
+  Snipcart.api.theme.cart.open();
+  hideLoadingOverlay(); // ✅ Hide loading screen after cart opens
+  sessionStorage.setItem("itemsAdded", "true");
+}, skuArray.length * 200 + 500);
+
   }
 }
 

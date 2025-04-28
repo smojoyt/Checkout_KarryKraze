@@ -97,9 +97,13 @@ fetch("https://www.karrykraze.com/products/products.json")
 }
 
 
-function addToCart(sku) {
+function addItemToCart(sku) {
   const p = productCatalog[sku];
   if (!p) return;
+
+  // Get variant value from the select input if it exists
+  const variantSelect = document.getElementById(`variant-${sku}`);
+  const selectedVariant = variantSelect ? variantSelect.value : "";
 
   const btn = document.createElement("button");
   btn.className = "snipcart-add-item";
@@ -110,14 +114,17 @@ function addToCart(sku) {
   btn.setAttribute("data-item-description", p.description);
   btn.setAttribute("data-item-image", p.image);
   btn.setAttribute("data-item-name", p.name);
-  if (p.custom1Name) {
+
+  if (p.custom1Name && p.custom1Options) {
     btn.setAttribute("data-item-custom1-name", p.custom1Name);
     btn.setAttribute("data-item-custom1-options", p.custom1Options);
+    btn.setAttribute("data-item-custom1-value", selectedVariant);
   }
 
   document.body.appendChild(btn);
   btn.click();
 }
+
 
 function runCheckoutLogic() {
   if (sessionStorage.getItem("itemsAdded") === "true") return;

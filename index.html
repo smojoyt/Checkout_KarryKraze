@@ -102,7 +102,7 @@ setTimeout(() => {
 
     <!-- Dynamic Snipcart Button Generator -->
     <script>
-// Global variables
+// Global product catalog
 let productCatalog = {};
 
 // 1. Fetch product catalog
@@ -110,15 +110,15 @@ fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
   .then(data => {
     productCatalog = data;
-    waitForSnipcartAndRun(); // safer loading
+    waitForSnipcartAndRun();
   });
 
-// 2. Wait for Snipcart to be truly ready
+// 2. Wait until Snipcart is fully loaded
 function waitForSnipcartAndRun() {
   if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
     runCheckoutLogic();
   } else {
-    setTimeout(waitForSnipcartAndRun, 300); // Retry every 300ms
+    setTimeout(waitForSnipcartAndRun, 300);
   }
 }
 
@@ -130,13 +130,15 @@ function runCheckoutLogic() {
   const skus = params.get("autocart");
   if (skus) {
     const skuArray = skus.split(",");
+
+    // Add each SKU
     skuArray.forEach((sku, i) => {
       setTimeout(() => {
         addItemToCart(sku.trim());
-      }, i * 200); // Faster adding
+      }, i * 200);
     });
 
-    // Open cart after adding all items
+    // IMPORTANT: open cart after adding (inside the same block!)
     setTimeout(() => {
       Snipcart.api.theme.cart.open();
       sessionStorage.setItem("itemsAdded", "true");
@@ -144,10 +146,13 @@ function runCheckoutLogic() {
   }
 }
 
-// 4. Actually add item to Snipcart cart (using API directly)
+// 4. Actually add item
 function addItemToCart(sku) {
   const p = productCatalog[sku];
-  if (!p) return console.error(`Product not found for SKU: ${sku}`);
+  if (!p) {
+    console.error(`Product not found for SKU: ${sku}`);
+    return;
+  }
 
   Snipcart.api.cart.items.add({
     id: sku,
@@ -160,11 +165,12 @@ function addItemToCart(sku) {
   });
 }
 
-// 5. Retry button fallback
+// 5. Retry button function
 function retryAdd() {
   waitForSnipcartAndRun();
 }
     </script>
+
 
 
 

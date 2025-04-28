@@ -87,7 +87,7 @@
         price: "49.97",
         url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
         description: "Ribbed Knit Acrylic Blend\nOversized earflap design\nSignature “LOVER BOY” front patch\nOne size fits most\nLightweight & breathable\nColor: Jet Black | Apricrot\nHand wash cold, dry flat",
-        image: "/imgs/Products/Hats/BunnyEarsRat/01_03.png",
+        image: "https://www.karrykraze.com/imgs/Products/Hats/BunnyEarsRat/01_03.png",
         name: "Ribbed Knit Earflap Beanie",
         custom1Name: "Color",
         custom1Options: "Black | Apricrot"
@@ -120,7 +120,6 @@
       const sku = params.get("autocart");
       if (sku) {
         addToCart(sku);
-        window.Snipcart.api.theme.cart.open();
       }
     });
 
@@ -129,7 +128,6 @@
       const sku = params.get("autocart");
       if (sku) {
         addToCart(sku);
-        window.Snipcart.api.theme.cart.open();
       }
     }</script>
 

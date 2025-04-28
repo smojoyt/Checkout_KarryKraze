@@ -132,10 +132,11 @@ function runCheckoutLogic() {
   if (skus) {
     const skuArray = skus.split(",");
     skuArray.forEach((sku, i) => {
-      setTimeout(() => {
-        addToCart(sku.trim());
-      }, i * 500);
-    });
+  setTimeout(() => {
+    addItemToCart(sku.trim()); // ✅ FIXED
+  }, i * 500);
+});
+
 
     setTimeout(() => {
       Snipcart.api.theme.cart.open();

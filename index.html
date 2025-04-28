@@ -115,8 +115,9 @@
   document.body.appendChild(btn);
   btn.click();
 
-  // 👇 Force open the cart after adding item
-  Snipcart.api.theme.cart.open();
+  setTimeout(() => {
+    Snipcart.api.theme.cart.open();
+  }, 2000);
 }
 
 

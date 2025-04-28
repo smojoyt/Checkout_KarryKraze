@@ -89,9 +89,7 @@ function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) overlay.style.display = 'none';
 }
-    </script>
 
-    <script>
 // Global product catalog
 let productCatalog = {};
 
@@ -127,97 +125,52 @@ function runCheckoutLogic() {
       }, i * 200);
     });
 
+    // After adding all items, open cart and hide overlay
     setTimeout(() => {
-  Snipcart.api.theme.cart.open();
-  hideLoadingOverlay(); // ✅ Hide loading screen after cart opens
-  sessionStorage.setItem("itemsAdded", "true");
-}, skuArray.length * 200 + 500);
-
+      Snipcart.api.theme.cart.open();
+      hideLoadingOverlay();
+      sessionStorage.setItem("itemsAdded", "true");
+      console.log("✅ Cart opened automatically after adding items.");
+    }, skuArray.length * 200 + 500);
   }
 }
 
-// Actually add item
-function addItemToCart(sku) {
+// Add item to cart with variant support
+function addItemToCart(skuWithVariant) {
+  const [sku, variant] = skuWithVariant.split(":"); // Split SKU and Variant
+
   const p = productCatalog[sku];
   if (!p) {
-    console.error(`Product not found for SKU: ${sku}`);
+    console.error(`❌ Product not found for SKU: ${sku}`);
     return;
   }
 
-  Snipcart.api.cart.items.add({
+  console.log('🛒 Adding product to Snipcart:', { sku, variant });
+
+  const itemData = {
     id: sku,
     name: p.name,
-    url: p.url,
+    url: p.url.startsWith('http') ? p.url : window.location.origin + p.url,
     image: p.image,
     description: p.description,
     price: p.price,
     quantity: 1
-  });
+  };
+
+  if (variant && p.custom1Name && p.custom1Options) {
+    itemData.custom1Name = p.custom1Name;
+    itemData.custom1Value = variant;
+  }
+
+  Snipcart.api.cart.items.add(itemData);
 }
 
-// Retry button function
+// Retry add manually if needed
 function retryAdd() {
   waitForSnipcartAndRun();
 }
-
-function addItemToCart(sku) {
-  const p = productCatalog[sku];
-  if (!p) {
-    console.error(`❌ Product not found for SKU: ${sku}`);
-    return;
-  }
-
-  console.log(`✅ Adding to cart: ${sku}`);
-  Snipcart.api.cart.items.add({
-    id: sku,
-    name: p.name,
-    url: p.url,
-    image: p.image,
-    description: p.description,
-    price: p.price,
-    quantity: 1
-  });
-}
-
-function addItemToCart(sku) {
-  const p = productCatalog[sku];
-  if (!p) {
-    console.error(`❌ Product not found for SKU: ${sku}`);
-    return;
-  }
-
-  console.log('🛒 Adding product to Snipcart:', {
-    id: sku,
-    name: p.name,
-    url: p.url,
-    image: p.image,
-    description: p.description,
-    price: p.price
-  });
-
-  Snipcart.api.cart.items.add({
-    id: sku,
-    name: p.name,
-    url: p.url,
-    image: p.image,
-    description: p.description,
-    price: p.price,
-    quantity: 1
-  });
-}
-
     </script>
 
-    <script>
-setTimeout(() => {
-  if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
-    Snipcart.api.theme.cart.open();
-    console.log("✅ Cart opened automatically after 2 seconds.");
-  } else {
-    console.error("❌ Snipcart not ready after 2 seconds.");
-  }
-}, 2000); // 2000 milliseconds = 2 seconds
-    </script>
 
 
 

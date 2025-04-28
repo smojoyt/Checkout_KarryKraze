@@ -2,190 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Karry Kraze - Checkout</title>
-
-    <!-- Snipcart CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Karry Kraze</title>
     <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.css" />
-
-    <!-- Snipcart Script -->
     <script async src="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.js"></script>
-
-
-
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             font-family: Arial, sans-serif;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
         }
 
-        .background-video {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            z-index: -1;
-            object-fit: cover;
-        }
-
-        .content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            padding: 50px;
-            color: white;
-        }
-
-        .message {
-            font-size: 18px;
-        }
-
-        .logo {
-            max-width: 150px;
-            margin-bottom: 20px;
-        }
-
-        .snipcart-add-item {
-            display: none; /* Hide the actual cart button */
-        }
-
-        footer {
-            text-align:center;
-            margin-top: 50px;
-            font-size: 14px;
-            color: white;
+        #loading {
+            font-size: 1.5rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Video -->
-    <video autoplay muted loop class="background-video">
-        <source src="/images/Background/BagPreview_06.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <div id="loading">Loading your cart...</div>
 
-    <div class="content">
-        <!-- Optional Logo -->
-        <img class="logo" src="/images/Logo/LL_White_01.png" alt="Karry Kraze Logo">
-
-        <!-- Message Displayed to Customer -->
-        <div class="message">
-            Loading your cart...<br>
-            If nothing happens, <a href="#" onclick="retryAdd()" style="color: #fff; text-decoration: underline;">click here</a>.
-        </div>
-    </div>
-    <!-- Loading overlay
-    <div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9999;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;">
-        Loading your cart...
-    </div-->
+    <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz"></div>
 
     <script>
-// Hide loading overlay once cart is open
-function hideLoadingOverlay() {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) overlay.style.display = 'none';
-}
+    let productCatalog = {};
 
-// Global product catalog
-let productCatalog = {};
+    // Fetch your products
+    fetch("https://www.karrykraze.com/products/products.json")
+      .then(res => res.json())
+      .then(data => {
+        productCatalog = data;
+        waitForSnipcart();
+      });
 
-// Fetch product catalog
-fetch("https://www.karrykraze.com/products/products.json")
-  .then(res => res.json())
-  .then(data => {
-    productCatalog = data;
-    waitForSnipcartAndRun();
-  });
+    function waitForSnipcart() {
+      if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
+        runCheckout();
+      } else {
+        setTimeout(waitForSnipcart, 300);
+      }
+    }
 
-// Wait until Snipcart is fully loaded
-function waitForSnipcartAndRun() {
-  if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
-    runCheckoutLogic();
-  } else {
-    setTimeout(waitForSnipcartAndRun, 300);
-  }
-}
+    function runCheckout() {
+      if (sessionStorage.getItem("itemsAdded") === "true") {
+        hideLoading();
+        return;
+      }
 
-// Main checkout logic
-function runCheckoutLogic() {
-  if (sessionStorage.getItem("itemsAdded") === "true") return;
+      const params = new URLSearchParams(window.location.search);
+      const skus = params.get("autocart");
 
-  const params = new URLSearchParams(window.location.search);
-  const skus = params.get("autocart");
-  if (skus) {
-    const skuArray = skus.split(",");
+      if (skus) {
+        const skuArray = skus.split(",");
+        skuArray.forEach((skuVariant, i) => {
+          setTimeout(() => addItemToCart(skuVariant), i * 200);
+        });
 
-    skuArray.forEach((sku, i) => {
-      setTimeout(() => {
-        addItemToCart(sku.trim());
-      }, i * 200);
-    });
+        setTimeout(() => {
+          Snipcart.api.theme.cart.open();
+          hideLoading();
+          sessionStorage.setItem("itemsAdded", "true");
+        }, skuArray.length * 200 + 500);
+      } else {
+        hideLoading();
+      }
+    }
 
-    // After adding all items, open cart and hide overlay
-    setTimeout(() => {
-      Snipcart.api.theme.cart.open();
-      hideLoadingOverlay();
-      sessionStorage.setItem("itemsAdded", "true");
-      console.log("✅ Cart opened automatically after adding items.");
-    }, skuArray.length * 200 + 500);
-  }
-}
+    function addItemToCart(skuVariant) {
+      const [sku, variant] = skuVariant.split(":");
+      const p = productCatalog[sku];
 
-// Add item to cart with variant support
-function addItemToCart(skuWithVariant) {
-  const [sku, variant] = skuWithVariant.split(":"); // Split SKU and Variant
+      if (!p) {
+        console.error("❌ Product not found for SKU:", sku);
+        return;
+      }
 
-  const p = productCatalog[sku];
-  if (!p) {
-    console.error(`❌ Product not found for SKU: ${sku}`);
-    return;
-  }
+      const itemData = {
+        id: sku,
+        name: p.name,
+        url: p.url.startsWith("http") ? p.url : window.location.origin + p.url,
+        image: p.image,
+        description: Array.isArray(p.descriptionList) ? p.descriptionList.join(", ") : p.description,
+        price: p.price,
+        quantity: 1
+      };
 
-  console.log('🛒 Adding product to Snipcart:', { sku, variant });
+      if (variant && p.custom1Name && p.custom1Options) {
+        itemData.custom1Name = p.custom1Name;
+        itemData.custom1Value = variant;
+      }
 
-  const itemData = {
-    id: sku,
-    name: p.name,
-    url: p.url.startsWith('http') ? p.url : window.location.origin + p.url,
-    image: p.image,
-    description: p.description,
-    price: p.price,
-    quantity: 1
-  };
+      Snipcart.api.cart.items.add(itemData);
+    }
 
-  if (variant && p.custom1Name && p.custom1Options) {
-    itemData.custom1Name = p.custom1Name;
-    itemData.custom1Value = variant;
-  }
-
-  Snipcart.api.cart.items.add(itemData);
-}
-
-// Retry add manually if needed
-function retryAdd() {
-  waitForSnipcartAndRun();
-}
+    function hideLoading() {
+      const loading = document.getElementById("loading");
+      if (loading) loading.style.display = "none";
+    }
     </script>
 
-
-
-
-
-
-
-
-
-
-    <!-- Snipcart Cart will auto-pop -->
-    <footer>
-        &copy; Karry Kraze. All rights reserved.
-    </footer>
-
-    <!-- Snipcart API Key (replace YOUR_API_KEY_HERE with your actual key) -->
-    <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz"></div>
 </body>
 </html>

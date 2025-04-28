@@ -95,25 +95,30 @@
     };
 
     function addToCart(sku) {
-      const p = products[sku];
-      if (!p) return;
+  const p = products[sku];
+  if (!p) return;
 
-      const btn = document.createElement("button");
-      btn.className = "snipcart-add-item";
-      btn.style.display = "none";
-      btn.setAttribute("data-item-id", sku);
-      btn.setAttribute("data-item-price", p.price);
-      btn.setAttribute("data-item-url", p.url);
-      btn.setAttribute("data-item-description", p.description);
-      btn.setAttribute("data-item-image", p.image);
-      btn.setAttribute("data-item-name", p.name);
-      if (p.custom1Name) {
-        btn.setAttribute("data-item-custom1-name", p.custom1Name);
-        btn.setAttribute("data-item-custom1-options", p.custom1Options);
-      }
-      document.body.appendChild(btn);
-      btn.click();
-    }
+  const btn = document.createElement("button");
+  btn.className = "snipcart-add-item";
+  btn.style.display = "none";
+  btn.setAttribute("data-item-id", sku);
+  btn.setAttribute("data-item-price", p.price);
+  btn.setAttribute("data-item-url", p.url);
+  btn.setAttribute("data-item-description", p.description);
+  btn.setAttribute("data-item-image", p.image);
+  btn.setAttribute("data-item-name", p.name);
+  if (p.custom1Name) {
+    btn.setAttribute("data-item-custom1-name", p.custom1Name);
+    btn.setAttribute("data-item-custom1-options", p.custom1Options);
+  }
+
+  document.body.appendChild(btn);
+  btn.click();
+
+  // 👇 Force open the cart after adding item
+  Snipcart.api.theme.cart.open();
+}
+
 
     document.addEventListener("snipcart.ready", () => {
       const params = new URLSearchParams(window.location.search);

@@ -159,6 +159,26 @@ function addItemToCart(sku) {
 function retryAdd() {
   waitForSnipcartAndRun();
 }
+
+function addItemToCart(sku) {
+  const p = productCatalog[sku];
+  if (!p) {
+    console.error(`❌ Product not found for SKU: ${sku}`);
+    return;
+  }
+
+  console.log(`✅ Adding to cart: ${sku}`);
+  Snipcart.api.cart.items.add({
+    id: sku,
+    name: p.name,
+    url: p.url,
+    image: p.image,
+    description: p.description,
+    price: p.price,
+    quantity: 1
+  });
+}
+
     </script>
 
 

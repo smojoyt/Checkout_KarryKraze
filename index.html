@@ -85,7 +85,6 @@
     <script>
 let productCatalog = {};
 
-// Load shared product data from your main site
 fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
   .then(data => {
@@ -116,6 +115,8 @@ function addToCart(sku) {
 }
 
 function runCheckoutLogic() {
+  if (sessionStorage.getItem("itemsAdded") === "true") return;
+
   const params = new URLSearchParams(window.location.search);
   const skus = params.get("autocart");
   if (skus) {
@@ -128,14 +129,12 @@ function runCheckoutLogic() {
 
     setTimeout(() => {
       Snipcart.api.theme.cart.open();
+      sessionStorage.setItem("itemsAdded", "true"); // prevents duplicates
     }, skuArray.length * 500 + 500);
   }
 }
-
-function retryAdd() {
-  runCheckoutLogic(); // same logic, reused
-}
     </script>
+
 
 
 

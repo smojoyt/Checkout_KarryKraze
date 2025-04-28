@@ -78,52 +78,51 @@
             If nothing happens, <a href="#" onclick="retryAdd()" style="color: #fff; text-decoration: underline;">click here</a>.
         </div>
     </div>
+    <!-- Loading overlay -->
+    <div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9999;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;">
+        Loading your cart...
+    </div>
+
+    <script>
+// Hide loading overlay once cart is open
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// Modify cart open timeout:
+setTimeout(() => {
+  Snipcart.api.theme.cart.open();
+  hideLoadingOverlay();
+  sessionStorage.setItem("itemsAdded", "true");
+}, skuArray.length * 200 + 500);
+    </script>
+
+
 
     <!-- Dynamic Snipcart Button Generator -->
     <script>
+// Global variables
 let productCatalog = {};
 
+// 1. Fetch product catalog
 fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
   .then(data => {
     productCatalog = data;
-
-    document.addEventListener("snipcart.ready", () => {
-      runCheckoutLogic(); // ✅ Only runs once Snipcart is fully ready
-    });
+    waitForSnipcartAndRun(); // safer loading
   });
 
-
-
-function addItemToCart(sku) {
-  const p = productCatalog[sku];
-  if (!p) return;
-
-  // Get variant value from the select input if it exists
-  const variantSelect = document.getElementById(`variant-${sku}`);
-  const selectedVariant = variantSelect ? variantSelect.value : "";
-
-  const btn = document.createElement("button");
-  btn.className = "snipcart-add-item";
-  btn.style.display = "none";
-  btn.setAttribute("data-item-id", sku);
-  btn.setAttribute("data-item-price", p.price);
-  btn.setAttribute("data-item-url", p.url);
-  btn.setAttribute("data-item-description", p.description);
-  btn.setAttribute("data-item-image", p.image);
-  btn.setAttribute("data-item-name", p.name);
-
-  if (p.custom1Name && p.custom1Options) {
-    btn.setAttribute("data-item-custom1-name", p.custom1Name);
-    btn.setAttribute("data-item-custom1-options", p.custom1Options);
-    btn.setAttribute("data-item-custom1-value", selectedVariant);
+// 2. Wait for Snipcart to be truly ready
+function waitForSnipcartAndRun() {
+  if (typeof Snipcart !== 'undefined' && Snipcart.api && Snipcart.api.theme) {
+    runCheckoutLogic();
+  } else {
+    setTimeout(waitForSnipcartAndRun, 300); // Retry every 300ms
   }
-
-  document.body.appendChild(btn);
-  btn.click();
 }
 
-
+// 3. Main checkout logic
 function runCheckoutLogic() {
   if (sessionStorage.getItem("itemsAdded") === "true") return;
 
@@ -132,24 +131,41 @@ function runCheckoutLogic() {
   if (skus) {
     const skuArray = skus.split(",");
     skuArray.forEach((sku, i) => {
-  setTimeout(() => {
-    addItemToCart(sku.trim()); // ✅ FIXED
-  }, i * 500);
-});
+      setTimeout(() => {
+        addItemToCart(sku.trim());
+      }, i * 200); // Faster adding
+    });
 
-
+    // Open cart after adding all items
     setTimeout(() => {
       Snipcart.api.theme.cart.open();
-      sessionStorage.setItem("itemsAdded", "true"); // prevents duplicates
-    }, skuArray.length * 500 + 500);
+      sessionStorage.setItem("itemsAdded", "true");
+    }, skuArray.length * 200 + 500);
   }
 }
 
-function retryAdd() {
-  runCheckoutLogic(); // re-runs the add-to-cart logic
+// 4. Actually add item to Snipcart cart (using API directly)
+function addItemToCart(sku) {
+  const p = productCatalog[sku];
+  if (!p) return console.error(`Product not found for SKU: ${sku}`);
+
+  Snipcart.api.cart.items.add({
+    id: sku,
+    name: p.name,
+    url: p.url,
+    image: p.image,
+    description: p.description,
+    price: p.price,
+    quantity: 1
+  });
 }
 
+// 5. Retry button fallback
+function retryAdd() {
+  waitForSnipcartAndRun();
+}
     </script>
+
 
 
 

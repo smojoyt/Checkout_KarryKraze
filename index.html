@@ -82,8 +82,7 @@
     </div>
 
     <!-- Dynamic Snipcart Button Generator -->
-    <script>
-    const products = {
+    <script>const products = {
       "Headwear_EarflapBeanie": {
         price: "49.97",
         url: "https://www.karrykraze.com/products/headwear/RibbedKnitEarflapBeanie",
@@ -95,40 +94,41 @@
       }
     };
 
-    document.addEventListener("DOMContentLoaded", function () {
+    function addToCart(sku) {
+      const p = products[sku];
+      if (!p) return;
+
+      const btn = document.createElement("button");
+      btn.className = "snipcart-add-item";
+      btn.style.display = "none";
+      btn.setAttribute("data-item-id", sku);
+      btn.setAttribute("data-item-price", p.price);
+      btn.setAttribute("data-item-url", p.url);
+      btn.setAttribute("data-item-description", p.description);
+      btn.setAttribute("data-item-image", p.image);
+      btn.setAttribute("data-item-name", p.name);
+      if (p.custom1Name) {
+        btn.setAttribute("data-item-custom1-name", p.custom1Name);
+        btn.setAttribute("data-item-custom1-options", p.custom1Options);
+      }
+      document.body.appendChild(btn);
+      btn.click();
+    }
+
+    document.addEventListener("snipcart.ready", () => {
       const params = new URLSearchParams(window.location.search);
       const sku = params.get("autocart");
-
-      if (sku && products[sku]) {
-        const p = products[sku];
-        const btn = document.createElement("button");
-        btn.className = "snipcart-add-item";
-        btn.style.display = "none";
-        btn.setAttribute("data-item-id", sku);
-        btn.setAttribute("data-item-price", p.price);
-        btn.setAttribute("data-item-url", p.url);
-        btn.setAttribute("data-item-description", p.description);
-        btn.setAttribute("data-item-image", p.image);
-        btn.setAttribute("data-item-name", p.name);
-        if (p.custom1Name) {
-          btn.setAttribute("data-item-custom1-name", p.custom1Name);
-          btn.setAttribute("data-item-custom1-options", p.custom1Options);
-        }
-        document.body.appendChild(btn);
-
-        document.addEventListener("snipcart.ready", () => {
-          btn.click();
-          window.Snipcart.api.theme.cart.open();
-        });
+      if (sku) {
+        addToCart(sku);
+        window.Snipcart.api.theme.cart.open();
       }
     });
 
     function retryAdd() {
       const params = new URLSearchParams(window.location.search);
-      const sku = params.get('autocart');
-      const button = document.querySelector(`[data-item-id="${sku}"]`);
-      if (button) {
-        button.click();
+      const sku = params.get("autocart");
+      if (sku) {
+        addToCart(sku);
         window.Snipcart.api.theme.cart.open();
       }
     }</script>

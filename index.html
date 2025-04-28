@@ -117,9 +117,13 @@
       }
       document.body.appendChild(btn);
 
-      // Wait for Snipcart to be ready before clicking
-      document.addEventListener('snipcart.ready', () => {
+      document.addEventListener("snipcart.ready", () => {
         btn.click();
+      });
+
+      document.addEventListener("snipcart.cart.ready", () => {
+        // Only open if not already shown (optional safeguard)
+        window.Snipcart.api.theme.cart.open();
       });
     }
   });
@@ -128,9 +132,13 @@
     const params = new URLSearchParams(window.location.search);
     const sku = params.get('autocart');
     const button = document.querySelector(`[data-item-id="${sku}"]`);
-    if (button) button.click();
+    if (button) {
+      button.click();
+      window.Snipcart.api.theme.cart.open();
+    }
   }
     </script>
+
 
 
     <!-- Snipcart Cart will auto-pop -->

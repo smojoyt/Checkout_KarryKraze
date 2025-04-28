@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Karry Kraze - Checkout</title>
+
+    <!-- Snipcart CSS -->
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.css" />
+
+    <!-- Snipcart Script -->
+    <script async src="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.js"></script>
+
+    <!-- Snipcart API Key (replace YOUR_API_KEY_HERE with your actual key) -->
+    <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz"></div>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 50px;
+            color: white;
+        }
+
+        .message {
+            font-size: 18px;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .snipcart-add-item {
+            display: none; /* Hide the actual cart button */
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Video -->
+    <video autoplay muted loop class="background-video">
+        <source src="/images/Background/BagPreview_06.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="content">
+        <!-- Optional Logo -->
+        <img class="logo" src="/images/Logo/LL_White_01.png" alt="Karry Kraze Logo">
+
+        <!-- Message Displayed to Customer -->
+        <div class="message">
+            Loading your cart...<br>
+            If nothing happens, <a href="#" onclick="retryAdd()" style="color: #fff; text-decoration: underline;">click here</a>.
+        </div>
+    </div>
+
+    <!-- Hidden Snipcart Product (Replace values with your actual product data) -->
+    <button class="snipcart-add-item"
+            data-item-id="sku123"
+            data-item-price="49.99"
+            data-item-url="/checkout"
+            data-item-description="The Bucket Sack Bag"
+            data-item-image="https://karrykraze.com/images/bucket-bag.jpg"
+            data-item-name="Bucket Sack Bag">
+        Add to Cart
+    </button>
+
+    <!-- Auto-add to cart if URL contains ?autocart=sku123 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+            const sku = params.get('autocart');
+            if (sku) {
+                const button = document.querySelector(`[data-item-id="${sku}"]`);
+                if (button) {
+                    button.click();
+                }
+            }
+        });
+
+        function retryAdd() {
+            const params = new URLSearchParams(window.location.search);
+            const sku = params.get('autocart');
+            const button = document.querySelector(`[data-item-id="${sku}"]`);
+            if (button) button.click();
+        }
+    </script>
+
+    <!-- Snipcart Cart will auto-pop -->
+    <footer>
+        &copy; Karry Kraze. All rights reserved.
+    </footer>
+
+</body>
+</html>

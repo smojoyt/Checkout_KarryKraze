@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Checkout - Karry Kraze</title>
-
     <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.css" />
     <script async src="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.js"></script>
-
     <style>
         body, html {
             margin: 0;
@@ -20,22 +18,13 @@
         }
     </style>
 </head>
-
 <body>
-
-    <!-- Loading overlay -->
     <div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9999;display:flex;align-items:center;justify-content:center;font-size:20px;">
         Loading your cart...
     </div>
-
-    <!-- Hidden button container -->
     <div id="button-container" style="display: none;"></div>
-
-    <!-- Snipcart config -->
     <div hidden id="snipcart" data-api-key="OTkwZGJhM2QtNmQyMy00ZGYxLTg4YzAtNmExNDA2MDhmNmU0NjM4NzgwMjMxMTgyOTYyMjAz"></div>
-
-    <script>
-let productCatalog = {};
+    <script>let productCatalog = {};
 
 fetch("https://www.karrykraze.com/products/products.json")
   .then(res => res.json())
@@ -52,26 +41,25 @@ function waitForSnipcart() {
   }
 }
 
-function runCheckoutLogic() {
+async function runCheckoutLogic() {
   if (sessionStorage.getItem("itemsAdded") === "true") return;
 
   const params = new URLSearchParams(window.location.search);
   const skus = params.get("autocart");
   if (skus) {
     const skuArray = skus.split(",");
-
-    skuArray.forEach((skuVariant, i) => {
-      setTimeout(() => {
-        createAndClickSnipcartButton(skuVariant.trim());
-      }, i * 300);
-    });
-
-    setTimeout(() => {
-      Snipcart.api.theme.cart.open();
-      hideLoadingOverlay();
-      sessionStorage.setItem("itemsAdded", "true");
-    }, skuArray.length * 300 + 500);
+    await addItemsSequentially(skuArray, 500);
   }
+}
+
+async function addItemsSequentially(items, delayMs = 500) {
+  for (const skuVariant of items) {
+    createAndClickSnipcartButton(skuVariant.trim());
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+  }
+  Snipcart.api.theme.cart.open();
+  hideLoadingOverlay();
+  sessionStorage.setItem("itemsAdded", "true");
 }
 
 function createAndClickSnipcartButton(skuVariant) {
@@ -88,11 +76,7 @@ function createAndClickSnipcartButton(skuVariant) {
   btn.dataset.itemName = p.name;
   btn.dataset.itemUrl = p.url.startsWith('http') ? p.url : window.location.origin + p.url;
   btn.dataset.itemImage = p.image;
-
-  // Handle description
-  const descriptionHTML = Array.isArray(p.descriptionList) ? "<ul>" + p.descriptionList.map(d => `<li>${d}</li>`).join("") + "</ul>" : (p.description || '');
-  btn.dataset.itemDescription = descriptionHTML;
-
+  btn.dataset.itemDescription = Array.isArray(p.descriptionList) ? "<ul>" + p.descriptionList.map(d => `<li>${d}</li>`).join("") + "</ul>" : (p.description || '');
   btn.dataset.itemPrice = p.price;
   btn.dataset.itemQuantity = 1;
 
@@ -111,8 +95,6 @@ function createAndClickSnipcartButton(skuVariant) {
 function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) overlay.style.display = 'none';
-}
-    </script>
-
+}</script>
 </body>
 </html>
